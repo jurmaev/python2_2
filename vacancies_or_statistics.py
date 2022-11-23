@@ -304,3 +304,6 @@ elif work_method.lower() == 'статистика':
     report.generate_image(dict_list)
 else:
     print('Неверный метод работы!')
+
+
+print('merge conflict')
