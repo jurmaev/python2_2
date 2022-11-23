@@ -304,6 +304,13 @@ elif work_method.lower() == 'статистика':
     report.generate_image(dict_list)
 else:
     print('Неверный метод работы!')
+<<<<<<< HEAD
+
+
+print('merge conflict')
+||||||| 48fb133
+=======
 
 
 print('another merge conflict')
+>>>>>>> develop
