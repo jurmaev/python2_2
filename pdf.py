@@ -8,6 +8,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side, numbers
 import numpy as np
 import matplotlib.pyplot as plt
+import pdfkit
+from jinja2 import Environment, FileSystemLoader
 
 
 class Salary:
@@ -222,7 +224,7 @@ class Report:
         set_headers(cities_sheet, cities_headers)
 
         for year in dicts[0].keys():
-            years_sheet.append([year, dicts[0][year], dicts[1][year], dicts[2][year], dicts[3][year]])
+            years_sheet.append([year, dicts[0][year], dicts[2][year], dicts[1][year], dicts[3][year]])
 
         for city in dicts[4].keys():
             cities_sheet.append([city, dicts[4][city]])
@@ -290,27 +292,28 @@ class Report:
         plt.savefig('graph.png')
         plt.show()
 
+    def generate_pdf(self, dicts):
+        env = Environment(loader=FileSystemLoader('.'))
+        template = env.get_template("report.html")
+        options = {'enable-local-file-access': None}
 
-work_method = input('Выберите метод работы: ')
-inputs = Interface()
-dataset = DataSet(inputs.file_name)
-statistics = Statistics(dataset, inputs.profession)
-report = Report(inputs, statistics)
-dict_list = report.get_dict_list()
+        headings = ['Год', 'Средняя<br>зарплата', f'Средняя зарплата -<br>{self.inputs.profession}',
+                    'Количество<br>вакансий', f'Количество вакансий -<br>{self.inputs.profession}']
+        headings2 = ['Город', 'Уровень зарплат', 'Доля вакансий']
+        print(dicts[5])
+        share_of_vacancies = {k: f'{round(v * 100, 2)}%'.replace('.', ',') for k, v in dicts[5].items()}
 
-if work_method.lower() == 'вакансии':
-    report.generate_excel(dict_list)
-elif work_method.lower() == 'статистика':
-    report.generate_image(dict_list)
-else:
-    print('Неверный метод работы!')
-<<<<<<< HEAD
-
-
-print('merge conflict')
-||||||| 48fb133
-=======
+        pdf_template = template.render({'profession': self.inputs.profession, 'headings': headings, 'dicts': dicts, 'headings2': headings2, 'share_of_vacancies': share_of_vacancies})
+        config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+        pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options=options)
 
 
-print('another merge conflict')
->>>>>>> develop
+def get_pdf():
+    inputs = Interface()
+    dataset = DataSet(inputs.file_name)
+    statistics = Statistics(dataset, inputs.profession)
+    statistics.print_result()
+
+    report = Report(inputs, statistics)
+    dict_list = report.get_dict_list()
+    report.generate_pdf(dict_list)
