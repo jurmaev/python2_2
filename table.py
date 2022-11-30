@@ -6,7 +6,26 @@ import sys
 
 
 class Salary:
+    """
+        Класс для представления зарплаты
+
+        Attributes:
+            salary_from (int): Нижняя граница оклада
+            salary_to (int): Верхняя граница оклада
+            salary_gross (str): Указан ли доклад до вычета налогов
+            salary_currency (str): Валюта оклада
+        """
+
     def __init__(self, salary_from, salary_to, salary_gross, salary_currency):
+        """
+        Инициализирует объект Salary
+
+        Args:
+            salary_from (str): Нижняя граница оклада
+            salary_to (str): Верхняя граница оклада
+            salary_gross (str): Указан ли доклад до вычета налогов
+            salary_currency (str): Валюта оклада
+        """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_gross = salary_gross
@@ -38,6 +57,12 @@ class Salary:
     }
 
     def get_salary(self):
+        """
+        Объединяет данные о зарплате в одну строку
+
+        Returns
+            str: Строка с данными о зарплате
+        """
         salary_from = int(float(self.salary_from))
         salary_to = int(float(self.salary_to))
         salary_from = ' '.join(f'{salary_from:,}'.split(','))
@@ -47,16 +72,56 @@ class Salary:
         return f'{salary_from} - {salary_to} ({formatted_currency}) ({salary_gross})'
 
     def get_average_salary_rub(self):
+        """
+        Вычисляет среднюю зарплату и переводит ее в рубли
+
+        Returns:
+            float: Средняя зарплата в рублях
+        """
         return ((float(self.salary_from) + float(self.salary_to)) / 2) * self.currency_to_rub[
             self.salary_currency]
 
     def get_currency(self):
+        """
+        Переводит валюту на русский
+
+        Returns
+            str: Строка с валютой
+        """
         return self.currency[self.salary_currency]
 
 
 class Vacancy:
+    """
+    Класс для представления вакансии
+
+    Attributes:
+        name (str): Название вакансии
+        description (str): Описание вакансии
+        key_skills (list): Список ключевых навыков
+        experience_id (str): Необходимый опыт работы
+        premium (str): Премиум-вакансия
+        employer_name (str): Компания
+        salary (Salary): Данные о окладе
+        area_name (str): Название города
+        published_at (str): Время и дата публикации вакансии
+    """
     def __init__(self, name, description, key_skills, experience_id, premium, employer_name, salary, area_name,
                  published_at):
+        """
+        Инициализирует объект Vacancy
+
+        Attributes:
+            name (str): Название вакансии
+            description (str): Описание вакансии
+            key_skills (list): Список ключевых навыков
+            experience_id (str): Необходимый опыт работы
+            premium (str): Премиум-вакансия
+            employer_name (str): Компания
+            salary (Salary): Данные о окладе
+            area_name (str): Название города
+            published_at (str): Время и дата публикации вакансии
+        """
         self.name = name
         self.description = description
         self.key_skills = key_skills
@@ -69,7 +134,20 @@ class Vacancy:
 
 
 class DataSet:
+    """
+    Класс для представления данных о вакансиях
+
+    Attributes:
+        file_name (str): Название обрабатываемого файла
+        vacancies_objects (list<Vacancy>): Список вакансий
+    """
     def __init__(self, file_name):
+        """
+        Инициализирует объект DataSet, создает список вакансий по названию файла
+
+        Args:
+             file_name (str): Название файла
+        """
         self.file_name = file_name
         self.vacancies_objects = DataSet.create_vacancies_objects(self.file_name)
 
@@ -146,6 +224,15 @@ class DataSet:
 
     @staticmethod
     def csv_reader(file_name):
+        """
+        Считывает строки из файла
+
+        Args:
+            file_name (str): Название файла
+
+        Returns
+            (list, list): Список заголовков и список с вакансиями
+        """
         file_csv = open(file_name, encoding='utf_8_sig')
         reader = csv.reader(file_csv)
         list_data = [i for i in reader]
@@ -157,6 +244,15 @@ class DataSet:
 
     @staticmethod
     def create_vacancies_objects(file_name):
+        """
+        Создает список объектов Vacancy по названию файла
+
+        Args:
+            file_name (str): Название файла
+
+        Returns
+            list<Vacancy>: Список вакансий
+        """
         headings, vacancies = DataSet.csv_reader(file_name)
         filtered_vacancies = DataSet.csv_filter(vacancies, headings)
         vacancies_objects = [Vacancy(vacancy['name'],
@@ -174,14 +270,39 @@ class DataSet:
 
     @staticmethod
     def csv_filter(reader, list_naming):
+        """
+        Фильтрует список вакансий
+
+        Args:
+            reader (list): Список строк с вакансиями
+            list_naming (list): Названия параметров вакансий
+
+        Returns:
+            dict: Словарь отфильтрованных вакансий
+        """
         return [{list_naming[i]: DataSet.process_vacancy(vacancy[i]) for i, v in enumerate(vacancy)} for vacancy in
                 reader]
 
     @staticmethod
     def process_vacancy(vacancy):
+        """
+        Очищает строку вакансии
+
+        Args
+         vacancy (str): Строка с данными о вакансии
+
+        Returns
+            str: Очищенная строка с данными о вакансии
+        """
         return ' '.join(('; '.join(re.sub(re.compile('<.*?>'), '', vacancy).split('\n')).split()))
 
     def filter_vacancies(self, filter_parameter):
+        """
+        Фильтрует вакансии по заданному параметру
+
+        Args:
+            filter_parameter (str): Параметр фильтрации
+        """
         if filter_parameter == '':
             return self.vacancies_objects
         filter_parameter = filter_parameter.split(': ')
@@ -196,6 +317,13 @@ class DataSet:
             sys.exit()
 
     def sort_vacancies(self, parameter, order):
+        """
+        Сортирует вакансии по заданному параметру и порядку
+
+        Args:
+            parameter (str): Параметр сортировки
+            order (str): Порядок сортировки
+        """
         if parameter == '':
             return self.vacancies_objects
         if order == '':
@@ -205,6 +333,12 @@ class DataSet:
         self.vacancies_objects.sort(key=DataSet.sort_table[parameter], reverse=order)
 
     def create_table(self):
+        """
+        Создает таблицу для вывода данных
+
+        Returns
+            PrettyTable: Таблица с данными
+        """
         if len(self.vacancies_objects) == 0:
             print('Нет данных')
             sys.exit()
@@ -224,10 +358,27 @@ class DataSet:
 
     @staticmethod
     def formatter(row):
+        """
+        Форматирует данные в строке
+
+        Args:
+            row (str): Строка для форматирования
+
+        Returns
+            str: Форматированная строка
+        """
         return {k: DataSet.format_value(v(row)) for k, v in DataSet.format_table.items()}
 
     @staticmethod
     def print_table(table, vacancy_numbers, fields):
+        """
+        Выводит таблицу в консоль
+
+        Args:
+            table (PrettyTable): Таблица с данными
+            vacancy_numbers (list): Список с диапазоном строк для вывода
+            fields (list): Список с нужными столбцами для вывода
+        """
         vacancy_numbers = vacancy_numbers.split() if vacancy_numbers != '' else []
         fields = ['№'] + fields.split(', ') if fields != '' else table.field_names
         start = int(vacancy_numbers[0]) - 1 if len(vacancy_numbers) >= 1 else 0
@@ -236,11 +387,26 @@ class DataSet:
 
     @staticmethod
     def format_value(value):
+        """
+        Форматирует значение словаря для вывода в таблицу
+
+        Args:
+            value (str): Значение для форматирования
+
+        Returns:
+            str: Форматированное значение
+        """
         for d in [DataSet.bools, DataSet.experience, Salary.currency]:
             value = d[value] if value in d else value
         return value if len(value) <= 100 else value[:100] + '...'
 
     def print_final_table(self, inputs):
+        """
+        Выводит готовую таблицу
+
+        Args:
+            inputs (Interface): Данные с вводом пользователя
+        """
         self.filter_vacancies(inputs.filter_parameter)
         self.sort_vacancies(inputs.sorting_parameter,
                             inputs.sorting_order)
@@ -249,7 +415,21 @@ class DataSet:
 
 
 class Interface:
+    """
+    Класс для хранения ввода пользователя
+
+    Attributes:
+        file_name (str): Название файла
+        filter_parameter (str):
+        sorting_parameter (str):
+        sorting_order (str):
+        numbers (str):
+        cols (str):
+    """
     def __init__(self):
+        """
+        Инициализирует класс Interface
+        """
         inputs = Interface.check_inputs()
         self.file_name = inputs[0]
         self.filter_parameter = inputs[1]
@@ -260,6 +440,12 @@ class Interface:
 
     @staticmethod
     def check_inputs():
+        """
+        Проверяет вводы пользователя
+
+        Returns:
+            tuple: Кортеж с вводами пользователя
+        """
         file_name = input('Введите название файла: ')
         filter_parameter = input('Введите параметр фильтрации: ')
         sorting_parameter = input('Введите параметр сортировки: ')
@@ -282,7 +468,10 @@ class Interface:
         return file_name, filter_parameter, sorting_parameter, sorting_order, numbers, cols
 
 
-def get_table() :
+def get_table():
+    """
+    Выводит таблицу в консоль
+    """
     inputs = Interface()
     dataset = DataSet(inputs.file_name)
     dataset.print_final_table(inputs)
