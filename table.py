@@ -62,6 +62,13 @@ class Salary:
 
         Returns
             str: Строка с данными о зарплате
+
+        >>> Salary('1000', '2000', 'False', 'USD').get_salary()
+        '1 000 - 2 000 (Доллары) (С вычетом налогов)'
+        >>> Salary('500', '2500', 'True', 'AZN').get_salary()
+        '500 - 2 500 (Манаты) (Без вычета налогов)'
+        >>> Salary('700', '800', 'False', 'KZT').get_salary()
+        '700 - 800 (Тенге) (С вычетом налогов)'
         """
         salary_from = int(float(self.salary_from))
         salary_to = int(float(self.salary_to))
@@ -77,6 +84,13 @@ class Salary:
 
         Returns:
             float: Средняя зарплата в рублях
+
+        >>> Salary('1000', '20000', 'True', 'RUR').get_average_salary_rub()
+        10500.0
+        >>> Salary('1010', '3500', 'True', 'EUR').get_average_salary_rub()
+        135074.5
+        >>> Salary('10000', '20000', 'True', 'GEL').get_average_salary_rub()
+        326100.0
         """
         return ((float(self.salary_from) + float(self.salary_to)) / 2) * self.currency_to_rub[
             self.salary_currency]
@@ -89,7 +103,6 @@ class Salary:
             str: Строка с валютой
         """
         return self.currency[self.salary_currency]
-
 
 class Vacancy:
     """
@@ -293,6 +306,13 @@ class DataSet:
 
         Returns
             str: Очищенная строка с данными о вакансии
+
+        >>> DataSet.process_vacancy('Основные функции:</strong></p> <ul> <li>мониторинг состояния промышленных кластеров СУБД')
+        'Основные функции: мониторинг состояния промышленных кластеров СУБД'
+        >>> DataSet.process_vacancy('Обязанности:</strong></p> <ul> <li>Работа с обращениями в системе поддержки пользователей;')
+        'Обязанности: Работа с обращениями в системе поддержки пользователей;'
+        >>> DataSet.process_vacancy('Требования: ответственность, трудолюбие <p> </p> ')
+        'Требования: ответственность, трудолюбие'
         """
         return ' '.join(('; '.join(re.sub(re.compile('<.*?>'), '', vacancy).split('\n')).split()))
 
@@ -359,13 +379,16 @@ class DataSet:
     @staticmethod
     def formatter(row):
         """
-        Форматирует данные в строке
+        Форматирует данные вакансии
 
         Args:
-            row (str): Строка для форматирования
+            row (Vacancy): Вакансия для форматирования
 
         Returns
-            str: Форматированная строка
+            dict: Форматированная вакансия
+
+        >>> DataSet.formatter(Vacancy('Программист', 'Хорошая вакансия', ['Знание алгоритмов', 'Работа с Git'], 'noExperience', 'Да', 'Контур', Salary('10000', '15000', 'False', 'RUR'),'Челябинск', '2022-07-13T11:03:58+0300'))
+        {'Название': 'Программист', 'Описание': 'Хорошая вакансия', 'Навыки': 'Знание алгоритмов\\nРабота с Git', 'Опыт работы': 'Нет опыта', 'Премиум-вакансия': 'Да', 'Компания': 'Контур', 'Оклад': '10 000 - 15 000 (Рубли) (С вычетом налогов)', 'Название региона': 'Челябинск', 'Дата публикации вакансии': '13.07.2022'}
         """
         return {k: DataSet.format_value(v(row)) for k, v in DataSet.format_table.items()}
 
@@ -395,6 +418,15 @@ class DataSet:
 
         Returns:
             str: Форматированное значение
+
+        >>> DataSet.format_value('False')
+        'Нет'
+        >>> DataSet.format_value('noExperience')
+        'Нет опыта'
+        >>> DataSet.format_value('USD')
+        'Доллары'
+        >>> DataSet.format_value('ЕвроХим - один из крупнейших и наиболее быстро развивающихся производителей минеральных удобрений в мире. Наша цель – войти в пятерку лидеров отрасли.')
+        'ЕвроХим - один из крупнейших и наиболее быстро развивающихся производителей минеральных удобрений в ...'
         """
         for d in [DataSet.bools, DataSet.experience, Salary.currency]:
             value = d[value] if value in d else value
