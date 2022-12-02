@@ -203,9 +203,7 @@ class DataSet:
         'Премиум-вакансия': lambda f, d: f == DataSet.bools[d.premium],
         'Идентификатор валюты оклада': lambda f, d: f == d.salary.get_currency(),
         'Опыт работы': lambda f, d: f == DataSet.experience[d.experience_id],
-        'Дата публикации вакансии': lambda f, d: f == datetime.strptime(d.published_at,
-                                                                        '%Y-%m-%dT%H:%M:%S%z').strftime(
-            '%d.%m.%Y'),
+        'Дата публикации вакансии': lambda f, d: f == DataSet.format_date(d),
         'Навыки': lambda f, d: set(f.split(', ')).issubset(d.key_skills),
         'Оклад': lambda f, d: int(float(d.salary.salary_from)) <= int(f) <= int(float(d.salary.salary_to))
     }
@@ -231,9 +229,13 @@ class DataSet:
         'Компания': lambda row: row.employer_name,
         'Оклад': lambda row: row.salary.get_salary(),
         'Название региона': lambda row: row.area_name,
-        'Дата публикации вакансии': lambda row: datetime.strptime(row.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime(
-            '%d.%m.%Y')
+        'Дата публикации вакансии': lambda row: DataSet.format_date(row)
     }
+
+    @staticmethod
+    def format_date(date):
+        d = date.published_at
+        return d[8:10] + '.' + d[5:7] + '.' + d[:4]
 
     @staticmethod
     def csv_reader(file_name):
@@ -478,7 +480,8 @@ class Interface:
         Returns:
             tuple: Кортеж с вводами пользователя
         """
-        file_name = input('Введите название файла: ')
+        # file_name = input('Введите название файла: ')
+        file_name = 'vacancies_big.csv'
         filter_parameter = input('Введите параметр фильтрации: ')
         sorting_parameter = input('Введите параметр сортировки: ')
         sorting_order = input('Обратный порядок сортировки (Да / Нет): ')
@@ -507,3 +510,6 @@ def get_table():
     inputs = Interface()
     dataset = DataSet(inputs.file_name)
     dataset.print_final_table(inputs)
+
+
+get_table()
