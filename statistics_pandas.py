@@ -35,5 +35,6 @@ def get_city_statistics(file_name):
 
     df['share'] = df['count'] / df_length
     df_share = df.groupby('area_name', as_index=False)['share'].mean().sort_values(by='share', ascending=False)
+    df_share = df_share.head(10)
     share_of_vacancies = dict(zip(df_share['area_name'], round(df_share['share'], 4)))
     return salary_level_by_city, share_of_vacancies
