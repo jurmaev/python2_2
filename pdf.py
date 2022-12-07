@@ -21,6 +21,7 @@ class Salary:
         salary_to (int): Верхняя граница оклада
         salary_currency (str): Валюта оклада
     """
+
     def __init__(self, salary_from, salary_to, salary_currency):
         """
         Инициализирует объект Salary
@@ -68,6 +69,7 @@ class Vacancy:
         salary (str): Информация о зарплате
         published_at (str): Время и дата публикации вакансии
     """
+
     def __init__(self, name, area_name, salary,
                  published_at):
         """
@@ -102,6 +104,7 @@ class DataSet:
         file_name (str): Название обрабатываемого файла
         vacancies_objects (list<Vacancy>): Список вакансий
     """
+
     def __init__(self, file_name):
         """
         Инициализирует объект DataSet, создает список вакансий по названию файла
@@ -193,6 +196,7 @@ class Statistics:
         number_of_vacancies (dict): Словарь количества вакансий в каждом году
         number_of_vacancies_by_profession (dict): Словарь количества вакансий в каждом году с определенной профессией
     """
+
     def __init__(self, dataset, profession):
         """
         Инициализирует объект Statistics, подсчитывает атрибуты cities, profession_dataset, number_of_vacancies, number_of_vacancies_by_profession
@@ -358,6 +362,7 @@ class Interface:
         file_name (str): Название файла
         profession (str): Название профессии
     """
+
     def __init__(self):
         """
         Инициализирует класс Interface
@@ -376,7 +381,7 @@ class Interface:
         """
         file_name = input('Введите название файла: ')
         profession = input('Введите название профессии: ')
-        # file_name = '../vacancies_by_year.csv'
+        # file_name = 'vacancies_by_year.csv'
         # profession = 'Аналитик'
         return file_name, profession
 
@@ -389,6 +394,7 @@ class Report:
         inputs (Interface): Данные с вводом пользователя
         statistics (Statistics): Статистика по вакансиям
     """
+
     def __init__(self, inputs, statistics):
         """
         Инициализирует класс Report
@@ -419,6 +425,7 @@ class Report:
         Args:
             dicts (list): Список словарей с данными
         """
+
         def as_text(value):
             """
             Возвращает значения как строку
@@ -572,7 +579,9 @@ class Report:
         print(dicts[5])
         share_of_vacancies = {k: f'{round(v * 100, 2)}%'.replace('.', ',') for k, v in dicts[5].items()}
 
-        pdf_template = template.render({'profession': self.inputs.profession, 'headings': headings, 'dicts': dicts, 'headings2': headings2, 'share_of_vacancies': share_of_vacancies})
+        pdf_template = template.render(
+            {'profession': self.inputs.profession, 'headings': headings, 'dicts': dicts, 'headings2': headings2,
+             'share_of_vacancies': share_of_vacancies})
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options=options)
 
