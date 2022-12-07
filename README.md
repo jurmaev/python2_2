@@ -43,3 +43,11 @@
 
 Результаты работы скрипта с многопроцессорной обработкой:
 ![Screenshot_20221207_081222](https://user-images.githubusercontent.com/51710201/206217252-b25f8f70-588d-4c0d-a011-42e9645cc82c.png)
+
+
+### Задание 3.2.3
+
+Результаты работы скрипта используя concurrent futures: 
+![Screenshot_20221207_102216](https://user-images.githubusercontent.com/51710201/206247933-fbf3ca93-bc35-4e39-a930-efc5d569df31.png)
+
+Можем сделать вывод, что при использовании multiprocessing скрипт работает быстрее
