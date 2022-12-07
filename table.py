@@ -510,6 +510,3 @@ def get_table():
     inputs = Interface()
     dataset = DataSet(inputs.file_name)
     dataset.print_final_table(inputs)
-
-
-get_table()
