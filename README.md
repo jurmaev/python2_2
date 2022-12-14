@@ -36,6 +36,17 @@
 
 Можно сделать вывод, что последний способ является самым эффективным, его и оставим в коде
 
+### Задание 3.2.1
+
+Разделенные файлы csv:
+![Screenshot_20221214_095334](https://user-images.githubusercontent.com/51710201/207509041-9f0d51a7-d588-4226-b884-3a30fdb61039.png)
+![Screenshot_20221214_095351](https://user-images.githubusercontent.com/51710201/207509045-9f18aefd-2f09-4792-8ee3-689f5342962c.png)
+
+Примеры:
+[year_2007.csv](https://github.com/jurmaev/python2_2/files/10224387/year_2007.csv)
+[year_2014.csv](https://github.com/jurmaev/python2_2/files/10224390/year_2014.csv)
+
+
 ### Задание 3.2.2
 
 Результаты работы скрипта без многопроцессорной обработки:  
