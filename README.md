@@ -62,3 +62,15 @@
 ![Screenshot_20221207_102216](https://user-images.githubusercontent.com/51710201/206247933-fbf3ca93-bc35-4e39-a930-efc5d569df31.png)
 
 Можем сделать вывод, что при использовании multiprocessing скрипт работает быстрее
+
+
+### Задание 3.3.1
+
+Частотность различных валют:
+![Screenshot_20221218_085421](https://user-images.githubusercontent.com/51710201/208307708-f57ec61a-2067-480a-bd87-68d841616ddf.png)
+
+Итоговый dataframe:
+![Screenshot_20221218_085832](https://user-images.githubusercontent.com/51710201/208307712-55c95da8-4115-497e-9865-dc8a5e742db4.png)
+
+Разделенные csv файлы:
+![Screenshot_20221218_085818](https://user-images.githubusercontent.com/51710201/208307715-aba1f1bd-3830-4e60-a23b-82ead97ae6a9.png)
