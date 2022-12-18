@@ -70,7 +70,7 @@
 ![Screenshot_20221218_085421](https://user-images.githubusercontent.com/51710201/208307708-f57ec61a-2067-480a-bd87-68d841616ddf.png)
 
 Итоговый dataframe:  
-![Screenshot_20221218_085832](https://user-images.githubusercontent.com/51710201/208307712-55c95da8-4115-497e-9865-dc8a5e742db4.png)
+![Screenshot_20221218_105547](https://user-images.githubusercontent.com/51710201/208312111-d418d8a3-a14c-4e0d-81d4-baef0726de93.png)
 
 Разделенные csv файлы:  
 ![Screenshot_20221218_085818](https://user-images.githubusercontent.com/51710201/208307715-aba1f1bd-3830-4e60-a23b-82ead97ae6a9.png)
