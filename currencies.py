@@ -25,17 +25,8 @@ def get_currency_dynamic_csv(file_name):
                                                                                             second=0)
     end_date = datetime.strptime(df['published_at'].max(), '%Y-%m-%dT%H:%M:%S%z').replace(day=28, hour=12, minute=0,
                                                                                           second=0)
-    # today = datetime.now()
-    # tree = ET.parse(urlopen(f'http://www.cbr.ru/scripts/XML_daily.asp?date_req={end_date.day}/{end_date.month}/{end_date.year}'))
-    # currency_ids = {}
-    # root = tree.getroot()
-    # for child in root.findall('Valute'):
-    #     currency_name = child.find('CharCode').text
-    #     if currency_name in currencies:
-    #         currency_ids[currency_name] = list(child.attrib.values())[0]
 
     currency_dynamic = {key: [] for key in currencies}
-    # print(currency_dynamic)
     currency_dynamic['date'] = []
     for dt in rrule.rrule(rrule.MONTHLY, dtstart=start_date, until=end_date):
         tree = ET.parse(
@@ -58,18 +49,16 @@ def get_currency_dynamic_csv(file_name):
     currency_df = currency_df[cols]
     currency_df.to_csv('currency_dynamic.csv', index=False)
 
-get_currency_dynamic_csv('vacancies_dif_currencies.csv')
+
 def convert_salary_to_rub(file_name):
-
-
     def convert_to_rub(row):
         if row['salary_currency'] != 'RUR':
             date = datetime.strptime(row['published_at'], '%Y-%m-%dT%H:%M:%S%z')
             df = pd.read_csv(f'csv_files/year_{date.year}.csv')
             convert_value = df[df['date'] == date.strftime('%Y-%m')][row['salary_currency']].values[0]
-            print(type(convert_value))
-            return row['salary_currency'] * convert_value
-        return row['salary_currency']
+            return math.isnan(convert_value) if 'NaN' else row['salary'] * convert_value
+        return row['salary']
+
     def count_salary(row):
         if math.isnan(row['salary_from']):
             return row['salary_to']
@@ -78,8 +67,9 @@ def convert_salary_to_rub(file_name):
         return (row['salary_from'] + row['salary_to']) / 2
 
     df = get_currency_dynamic(file_name)
+    df = df.head(10000)
     df['salary'] = df.apply(count_salary, axis=1)
     df.apply(convert_to_rub, axis=1)
-    print(df.head(10))
+    df.to_csv('salary_info.csv', index=False)
 
-# convert_salary_to_rub('vacancies_dif_currencies.csv')
+convert_salary_to_rub('vacancies_dif_currencies.csv')
