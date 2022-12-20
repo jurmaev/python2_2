@@ -42,13 +42,13 @@ def get_currency_dynamic_csv(file_name):
         for key in currency_dynamic.keys():
             if key != 'date' and len(currency_dynamic['date']) > len(currency_dynamic[key]):
                 currency_dynamic[key] += ['NaN']
-    print(currency_dynamic['BYR'])
     currency_df = pd.DataFrame(data=currency_dynamic)
     cols = currency_df.columns.tolist()
     cols = cols[-1:] + cols[:-1]
     currency_df = currency_df[cols]
     currency_df.to_csv('currency_dynamic.csv', index=False)
 
+# get_currency_dynamic_csv('vacancies_dif_currencies.csv')
 
 def convert_salary_to_rub(file_name):
     def convert_to_rub(row):
@@ -67,9 +67,10 @@ def convert_salary_to_rub(file_name):
         return (row['salary_from'] + row['salary_to']) / 2
 
     df = get_currency_dynamic(file_name)
-    df = df.head(1000)
+    # df = df.head(1000)
     df['salary'] = df.apply(count_salary, axis=1)
     df['salary'] = df.apply(convert_to_rub, axis=1)
+    df = df[df['salary'] != 'NaN']
     df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_csv('salary_info.csv', index=False)
 
 convert_salary_to_rub('vacancies_dif_currencies.csv')
