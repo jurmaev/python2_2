@@ -1,3 +1,4 @@
 *.csv
 .idea
 !salary_info.csv
+!api_vacancies.csv
