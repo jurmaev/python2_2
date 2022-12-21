@@ -73,4 +73,4 @@ def convert_salary_to_rub(file_name):
     df = df[df['salary'] != 'NaN']
     df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_csv('salary_info.csv', index=False)
 
-convert_salary_to_rub('vacancies_dif_currencies.csv')
+# convert_salary_to_rub('vacancies_dif_currencies.csv')
