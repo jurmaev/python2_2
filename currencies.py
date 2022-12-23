@@ -1,10 +1,10 @@
 import math
-import numpy as np
 import pandas as pd
 from datetime import datetime
 from dateutil import rrule
 import xml.etree.ElementTree as ET
 from urllib.request import urlopen
+import divide_csv_file
 
 
 def get_currency_dynamic(file_name):
@@ -16,7 +16,7 @@ def get_currency_dynamic(file_name):
     return df
 
 
-def get_currency_dynamic_csv(file_name):
+def get_currency_dynamic_csv(file_name, dynamic_file_name):
     df = get_currency_dynamic(file_name)
     print(df['salary_currency'].value_counts())
     currencies = df['salary_currency'].unique()
@@ -46,9 +46,8 @@ def get_currency_dynamic_csv(file_name):
     cols = currency_df.columns.tolist()
     cols = cols[-1:] + cols[:-1]
     currency_df = currency_df[cols]
-    currency_df.to_csv('currency_dynamic.csv', index=False)
+    currency_df.to_csv(dynamic_file_name, index=False)
 
-# get_currency_dynamic_csv('vacancies_dif_currencies.csv')
 
 def convert_salary_to_rub(file_name):
     def convert_to_rub(row):
@@ -66,11 +65,13 @@ def convert_salary_to_rub(file_name):
             return row['salary_from']
         return (row['salary_from'] + row['salary_to']) / 2
 
+    dynamic_file_name = 'currency_dynamic.csv'
     df = get_currency_dynamic(file_name)
+    get_currency_dynamic_csv(file_name, dynamic_file_name)
+    divide_csv_file.divide_currency_file_by_year(dynamic_file_name)
     # df = df.head(1000)
     df['salary'] = df.apply(count_salary, axis=1)
     df['salary'] = df.apply(convert_to_rub, axis=1)
     df = df[df['salary'] != 'NaN']
     df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_csv('salary_info.csv', index=False)
-
-# convert_salary_to_rub('vacancies_dif_currencies.csv')
+    return df.loc[:, ['name', 'salary', 'area_name', 'published_at']]

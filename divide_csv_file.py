@@ -14,6 +14,7 @@ def divide_file_by_year(file_name):
 
     return years
 
+
 def divide_currency_file_by_year(file_name):
     pd.set_option('expand_frame_repr', False)
     df = pd.read_csv(file_name)
