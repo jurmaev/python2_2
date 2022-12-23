@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+    <style>
+        body {
+            font-family: Verdana, sans-serif;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        img {
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: center;
+            padding: 5px;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .column {
+            box-sizing: border-box;
+           float: left;
+           width: 50%;
+           padding: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>Аналитика по зарплатам и городам профессии {{ profession }} в городе {{city}}</h1>
+    <img src="file:///C:/Users/jurma/PycharmProjects/Beliaev/graph_pandas.png" alt="">
+    <h2>Статистика по годам</h2>
+    <table class="years">
+        <tr>
+            <th>{{headings[0]}}</th>
+            <th>{{headings[1]}}</th>
+            <th>{{headings[2]}}</th>
+            <th>{{headings[3]}}</th>
+            <th>{{headings[4]}}</th>
+        </tr>
+        {% for key, value in dicts[0].items() %}
+        <tr>
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+            <td>{{dicts[2][key]}}</td>
+            <td>{{dicts[1][key]}}</td>
+            <td>{{dicts[3][key]}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h2>Статистика по городам</h2>
+    <div>
+        <div class="column">
+            <table>
+                <tr>
+                    <th>{{headings2[0]}}</th>
+                    <th>{{headings2[1]}}</th>
+                </tr>
+                {% for key, value in dicts[4].items() %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{value}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="column">
+            <table>
+                <tr>
+                    <th>{{headings2[0]}}</th>
+                    <th>{{headings2[2]}}</th>
+                </tr>
+                {% for key, value in share_of_vacancies.items() %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{value}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

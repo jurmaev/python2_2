@@ -20,6 +20,7 @@ class Interface:
         """
         Инициализирует класс Interface
         """
+        self.city = None
         inputs = Interface.check_inputs()
         self.file_name = inputs[0]
         self.profession = inputs[1]
@@ -37,6 +38,10 @@ class Interface:
         file_name = 'vacancies_dif_currencies.csv'
         profession = 'Аналитик'
         return file_name, profession
+
+    def get_city(self):
+        # self.city = input('Введите название города: ')
+        self.city = 'Москва'
 
 
 class Report:
@@ -57,7 +62,6 @@ class Report:
             statistics (Statistics): Статистика по вакансиям
         """
         self.inputs = inputs
-
 
     def generate_excel(self, dicts):
         """
@@ -203,6 +207,62 @@ class Report:
         plt.savefig('graph.png')
         plt.show()
 
+    def generate_image_by_city(self, dicts):
+        """
+        Составляет графики со статистикой и сохраняет их в файл png
+
+        Args:
+            dicts (list): Список словарей со статистикой
+        """
+        fig = plt.figure()
+        width = 0.4
+
+        x_nums = np.arange(len(dicts[0].keys()))
+        x_list1 = x_nums - width / 2
+        x_list2 = x_nums + width / 2
+
+        ax = fig.add_subplot(221)
+        ax.set_title('Уровень зарплат по годам\n и региону')
+        ax.bar(x_list1, dicts[0].values(), width, label='средняя з/п')
+        ax.bar(x_list2, dicts[2].values(), width, label=f'з/п {self.inputs.profession.lower()}')
+        ax.set_xticks(x_nums, dicts[0].keys(), rotation='vertical')
+        ax.tick_params(axis='both', labelsize=8)
+        ax.legend(fontsize=8, loc='upper left')
+        ax.grid(True, axis='y')
+
+        x_nums = np.arange(len(dicts[1].keys()))
+        x_list1 = x_nums - width / 2
+        x_list2 = x_nums + width / 2
+        ax = fig.add_subplot(222)
+        ax.set_title('Уровень вакансий по годам\n и региону')
+        ax.bar(x_list1, dicts[1].values(), width, label='Количество вакансий')
+        ax.bar(x_list2, dicts[3].values(), width, label=f'Количество вакансий\n{self.inputs.profession.lower()}')
+        ax.set_xticks(x_nums, dicts[1].keys(), rotation='vertical')
+        ax.tick_params(labelsize=8)
+        ax.legend(fontsize=8, loc='upper left')
+        ax.grid(True, axis='y')
+
+        y_nums = np.arange(len(dicts[4].keys()))
+        labels = [i.replace(' ', '\n').replace('-', '-\n') for i in dicts[4].keys()]
+        ax = fig.add_subplot(223)
+        ax.set_title('Уровень зарплат по городам')
+        ax.barh(y_nums, dicts[4].values(), align='center')
+        ax.set_yticks(y_nums, labels)
+        ax.tick_params(labelsize=8)
+        ax.tick_params(axis='y', labelsize=6)
+        ax.invert_yaxis()
+        ax.grid(True, axis='x')
+
+        x_nums = np.concatenate(([1 - sum(dicts[5].values())], list(dicts[5].values())))
+        labels = np.concatenate((['Другие'], list(dicts[5].keys())))
+        ax = fig.add_subplot(224)
+        ax.set_title('Доля вакансий по городам')
+        ax.pie(x_nums, labels=labels, textprops={'fontsize': 6})
+
+        plt.tight_layout()
+        plt.savefig('graph_pandas.png')
+        plt.show()
+
     def generate_pdf(self, dicts):
         """
         Генерирует файл pdf на основе данных из таблиц и графиков
@@ -225,6 +285,28 @@ class Report:
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options=options)
 
+    def generate_pdf_by_city(self, dicts):
+        """
+        Генерирует файл pdf на основе данных из таблиц и графиков
+
+        Args:
+            dicts (list): Словари с данными
+        """
+        env = Environment(loader=FileSystemLoader('.'))
+        template = env.get_template("report_pandas.html")
+        options = {'enable-local-file-access': None}
+
+        headings = ['Год', 'Средняя<br>зарплата', f'Средняя зарплата -<br>{self.inputs.profession}',
+                    'Количество<br>вакансий', f'Количество вакансий -<br>{self.inputs.profession}']
+        headings2 = ['Город', 'Уровень зарплат', 'Доля вакансий']
+        share_of_vacancies = {k: f'{round(v * 100, 2)}%'.replace('.', ',') for k, v in dicts[5].items()}
+
+        pdf_template = template.render(
+            {'profession': self.inputs.profession, 'headings': headings, 'dicts': dicts, 'headings2': headings2,
+             'share_of_vacancies': share_of_vacancies, 'city': self.inputs.city})
+        config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+        pdfkit.from_string(pdf_template, 'report_pandas.pdf', configuration=config, options=options)
+
 
 def get_pdf():
     """
@@ -237,4 +319,15 @@ def get_pdf():
     report.generate_image(statistics)
     report.generate_pdf(statistics)
 
-get_pdf()
+
+def get_pdf_by_city():
+    inputs = Interface()
+    inputs.get_city()
+    statistics = statistics_futures.get_statistics_by_city(inputs.file_name, inputs.profession, inputs.city)
+
+    report = Report(inputs)
+    report.generate_image_by_city(statistics)
+    report.generate_pdf_by_city(statistics)
+
+
+get_pdf_by_city()
