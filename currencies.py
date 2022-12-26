@@ -82,9 +82,8 @@ def convert_salary_to_rub_sqlite(file_name):
     def convert_to_rub(row):
         if row['salary_currency'] != 'RUR':
             date = datetime.strptime(row['published_at'], '%Y-%m-%dT%H:%M:%S%z').strftime('%Y-%m')
-            c.execute(f"SELECT {row['salary_currency']} FROM currency_dynamic WHERE date = '{date}'")
-            convert_value = c.fetchone()[0]
-            return 'NaN' if math.isnan(convert_value) else row['salary'] * convert_value
+            convert_value = c.execute(f"SELECT {row['salary_currency']} FROM currency_dynamic WHERE date = '{date}'").fetchone()[0]
+            return None if not convert_value else row['salary'] * convert_value
         return row['salary']
 
     def count_salary(row):
@@ -101,13 +100,14 @@ def convert_salary_to_rub_sqlite(file_name):
     df['salary'] = df.apply(count_salary, axis=1)
     df['salary'] = df.apply(convert_to_rub, axis=1)
     df = df[df['salary'] != 'NaN']
-
+    df['published_at'] = df.apply(lambda row: datetime.strptime(row['published_at'], '%Y-%m-%dT%H:%M:%S%z').strftime('%Y-%m-%d'), axis = 1)
     conn = sqlite3.connect('salary_info.sqlite3')
     c = conn.cursor()
     c.execute(
         'CREATE TABLE IF NOT EXISTS salary_info (name text, salary float, area_name text, published_at date)')
     conn.commit()
-    df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_sql('salary_info', conn, if_exists='replace', index=False)
+    # df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_sql('salary_info', conn, if_exists='replace', index=False)
+    df.loc[:, ['name', 'salary', 'area_name', 'published_at']].to_sql('salary_info', conn, if_exists='replace', index=False)
     c.execute('SELECT * FROM salary_info')
     conn.close()
 
