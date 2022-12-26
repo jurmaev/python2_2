@@ -1,4 +1,6 @@
 import math
+import sqlite3
+
 import pandas as pd
 from datetime import datetime
 from dateutil import rrule
@@ -75,3 +77,38 @@ def convert_salary_to_rub(file_name):
     df = df[df['salary'] != 'NaN']
     df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_csv('salary_info.csv', index=False)
     return df.loc[:, ['name', 'salary', 'area_name', 'published_at']]
+
+def convert_salary_to_rub_sqlite(file_name):
+    def convert_to_rub(row):
+        if row['salary_currency'] != 'RUR':
+            date = datetime.strptime(row['published_at'], '%Y-%m-%dT%H:%M:%S%z').strftime('%Y-%m')
+            c.execute(f"SELECT {row['salary_currency']} FROM currency_dynamic WHERE date = '{date}'")
+            convert_value = c.fetchone()[0]
+            return 'NaN' if math.isnan(convert_value) else row['salary'] * convert_value
+        return row['salary']
+
+    def count_salary(row):
+        if math.isnan(row['salary_from']):
+            return row['salary_to']
+        elif math.isnan(row['salary_to']):
+            return row['salary_from']
+        return (row['salary_from'] + row['salary_to']) / 2
+
+    conn = sqlite3.connect('currency_dynamic.sqlite3')
+    c = conn.cursor()
+    df = get_currency_dynamic(file_name)
+    # df = df.head(100)
+    df['salary'] = df.apply(count_salary, axis=1)
+    df['salary'] = df.apply(convert_to_rub, axis=1)
+    df = df[df['salary'] != 'NaN']
+
+    conn = sqlite3.connect('salary_info.sqlite3')
+    c = conn.cursor()
+    c.execute(
+        'CREATE TABLE IF NOT EXISTS salary_info (name text, salary float, area_name text, published_at date)')
+    conn.commit()
+    df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_sql('salary_info', conn, if_exists='replace', index=False)
+    c.execute('SELECT * FROM salary_info')
+    conn.close()
+
+convert_salary_to_rub_sqlite('vacancies_dif_currencies.csv')
