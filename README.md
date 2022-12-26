@@ -78,3 +78,7 @@
 
 ### Задание 3.5.2
 ![Screenshot_20221226_031715](https://user-images.githubusercontent.com/51710201/209556350-ce8d04a9-7897-40d3-861b-f652d71f1380.png)
+
+
+### Задание 3.5.3
+![Screenshot_20221226_070322](https://user-images.githubusercontent.com/51710201/209556692-90f240b8-52c0-4e77-af2c-92fc6936ddbf.png)
