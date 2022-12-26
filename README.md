@@ -74,3 +74,7 @@
 
 Разделенные csv файлы:  
 ![Screenshot_20221218_085818](https://user-images.githubusercontent.com/51710201/208307715-aba1f1bd-3830-4e60-a23b-82ead97ae6a9.png)
+
+
+### Задание 3.5.2
+![Screenshot_20221226_031715](https://user-images.githubusercontent.com/51710201/209556350-ce8d04a9-7897-40d3-861b-f652d71f1380.png)
