@@ -12,7 +12,4 @@ c.execute(
 conn.commit()
 df.to_sql('currency_dynamic', conn, if_exists='replace', index=False)
 c.execute('SELECT * FROM currency_dynamic')
-for row in c.fetchmany(10):
-    print(row)
-
 conn.close()

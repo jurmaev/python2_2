@@ -10,15 +10,26 @@ import divide_csv_file
 
 
 def get_currency_dynamic(file_name):
+    """
+    Получает dataframe из csv файла
+    :param file_name: название файла
+    :return: dataframe с вакансиями
+    """
     pd.set_option('expand_frame_repr', False)
     df = pd.read_csv(file_name)
-    df = df.dropna(subset=['salary_from', 'salary_to'], how='all')
+    # df = df.dropna(subset=['salary_from', 'salary_to'], how='all')
     df['currency_count'] = df.groupby('salary_currency')['salary_currency'].transform('count')
-    df = df[df['currency_count'] > 5000]
+    df = df[(df['currency_count'] > 5000) | (pd.isna(df['currency_count']))]
     return df
 
 
 def get_currency_dynamic_csv(file_name, dynamic_file_name):
+    """
+    Создает csv файл с валютами
+    :param file_name: название файла с валютами
+    :param dynamic_file_name: Название выходного файла с валютами
+    :return: csv файл с валютами
+    """
     df = get_currency_dynamic(file_name)
     print(df['salary_currency'].value_counts())
     currencies = df['salary_currency'].unique()
@@ -43,7 +54,7 @@ def get_currency_dynamic_csv(file_name, dynamic_file_name):
                 currency_dynamic[code] += [coeff]
         for key in currency_dynamic.keys():
             if key != 'date' and len(currency_dynamic['date']) > len(currency_dynamic[key]):
-                currency_dynamic[key] += ['NaN']
+                currency_dynamic[key] += [None]
     currency_df = pd.DataFrame(data=currency_dynamic)
     cols = currency_df.columns.tolist()
     cols = cols[-1:] + cols[:-1]
@@ -52,29 +63,48 @@ def get_currency_dynamic_csv(file_name, dynamic_file_name):
 
 
 def convert_salary_to_rub(file_name):
+    """
+    Преобразует все валюты к рублям
+    :param file_name: Название входного файла
+    :return: dataframe c переведенными валютами
+    """
     def convert_to_rub(row):
+        """
+        Переводит зарплату к рублям
+        :param row: Строка вакансии
+        :return: Переведенную зарплату
+        """
+        if pd.isna(row['salary_currency']):
+            return None
         if row['salary_currency'] != 'RUR':
             date = datetime.strptime(row['published_at'], '%Y-%m-%dT%H:%M:%S%z')
             df = pd.read_csv(f'csv_files/year_{date.year}.csv')
             convert_value = df[df['date'] == date.strftime('%Y-%m')][row['salary_currency']].values[0]
-            return 'NaN' if math.isnan(convert_value) else row['salary'] * convert_value
+            return None if math.isnan(convert_value) else row['salary'] * convert_value
         return row['salary']
 
     def count_salary(row):
+        """
+        Считает среднюю зарплату
+        :param row: Строка в вакансией
+        :return: Среднюю зарплату
+        """
         if math.isnan(row['salary_from']):
             return row['salary_to']
         elif math.isnan(row['salary_to']):
             return row['salary_from']
+        elif math.isnan(row['salary_from']) and math.isnan(row['salary_to']):
+            return None
         return (row['salary_from'] + row['salary_to']) / 2
 
     dynamic_file_name = 'currency_dynamic.csv'
     df = get_currency_dynamic(file_name)
+    # print(df.head(10))
     get_currency_dynamic_csv(file_name, dynamic_file_name)
     divide_csv_file.divide_currency_file_by_year(dynamic_file_name)
-    # df = df.head(1000)
+    # df = df.head(100)
     df['salary'] = df.apply(count_salary, axis=1)
     df['salary'] = df.apply(convert_to_rub, axis=1)
-    df = df[df['salary'] != 'NaN']
     df.head(100).loc[:, ['name', 'salary', 'area_name', 'published_at']].to_csv('salary_info.csv', index=False)
     return df.loc[:, ['name', 'salary', 'area_name', 'published_at']]
 
@@ -111,4 +141,3 @@ def convert_salary_to_rub_sqlite(file_name):
     c.execute('SELECT * FROM salary_info')
     conn.close()
 
-convert_salary_to_rub_sqlite('vacancies_dif_currencies.csv')
